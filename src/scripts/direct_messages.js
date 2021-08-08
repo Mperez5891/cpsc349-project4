@@ -173,7 +173,6 @@ async function selectUser() {
   }
 }
 
-
 let newConversationButton = document.getElementById('new-conversation-button')
 let dropdownArea = document.getElementById('dropdown-area')
 newConversationButton.addEventListener('click', () => {
@@ -198,6 +197,13 @@ startNewConversationButton.addEventListener('click', async () => {
 
 async function generateConversationDropdown(){
   let followArr = await helper.getFollowing(loggedInUser)
+  if (followArr.length === 0) {
+    let message = '<h3 class="text-black font-bold justify-center items-center text-center">'
+    + 'Find people to follow on the <a class="text-blue-900 underline hover:text-blue-500" href="public_timeline.html">public timeline!</a></h3>'
+    document.getElementById('convo-container').classList.remove('justify-between')
+    document.getElementById('convo-container').classList.add('justify-center')
+    document.getElementById('messages').innerHTML = message
+  }
   const dropdownMenu = document.getElementById('new-conversation-dropdown')
   
   for (let i = 0; i < followArr.length; i++) {

@@ -15,6 +15,11 @@ if (window.sessionStorage.getItem('user') !== null) {
 async function generateFollowingList() {
   let followArr = await helper.getFollowing(loggedInUser)
   document.getElementById('timeline').innerHTML = ''
+  if (followArr.length === 0) {
+    let message = '<h3 class="text-white justify-center items-center text-center">'
+    + 'Find people to follow on the <a class="text-blue-300 underline hover:text-blue-500" href="public_timeline.html">public timeline!</a></h3>'
+    document.getElementById('timeline').innerHTML = message
+  }
   for (let i = 0; i < followArr.length; i++) {
     if (window.location.pathname.includes('/following.html')) {
       let user = await helper.getUser(followArr[i].following_id)

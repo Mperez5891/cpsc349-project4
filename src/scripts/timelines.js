@@ -118,7 +118,7 @@ async function generatePostDivs() {
             + "rounded-lg p-1 bg-indigo-500 hover:bg-purple-700 transition duration-300'>Follow</button>"
           }
         }
-        
+
         // Generate like/unlike button
         let likeOrUnlikeButton = null
         if (await helper.postLiked(postId, loggedInUser.id)) {
@@ -139,6 +139,17 @@ async function generatePostDivs() {
         
         document.getElementById('timeline').append(timelinePost)
       }
+    }
+    if (timeline.length === 0) {
+      let message = null
+      if (window.location.pathname.includes('home')) {
+        message = '<h3 class="text-white justify-center items-center text-center m-10">'
+        + 'Find people to follow on the <a class="text-blue-300 underline hover:text-blue-500" href="public_timeline.html">public timeline!</a></h3>'
+      } else {
+        message = '<h3 class="text-white justify-center items-center text-center m-10">'
+        + 'Hi ' + loggedInUser.username + '! You don\'t have any posts yet. Press the button above to create your first post!</h3>'
+      }
+      document.getElementById('timeline').innerHTML = message
     }
   }
 }
