@@ -56,11 +56,8 @@ let url_sent = 'http://localhost:5000/direct_messages/?sort=timestamp&from_user_
 let url_from = 'http://localhost:5000/direct_messages/?sort=timestamp&to_user_id=' + current_user_id
 await Promise.all([getdirectMessagesSent(url_sent), getdirectMessagesReceived(url_from)])
 
-// Add a function to sort by timestamp
-dm_list.sort((function (a, b) { 
-  return new Date(a.timestamp) - new Date(b.timestamp)
-}));
-console.log(dm_list)
+// Sort DM array by timestamp
+helper.sortByTime(dm_list)
 
 // Grab all the keys
 let temp_key_list = []
@@ -108,9 +105,7 @@ document.getElementById('send-message-button').addEventListener('click', async (
   await directMessage()
   dm_list = []
   await Promise.all([getdirectMessagesSent(url_sent), getdirectMessagesReceived(url_from)])
-  dm_list.sort((function (a, b) { 
-    return new Date(a.timestamp) - new Date(b.timestamp)
-  }));
+  helper.sortByTime(dm_list)
   displayMessages(currentConvoUser)
 })
 

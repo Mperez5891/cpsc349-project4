@@ -47,8 +47,10 @@ export async function getHomeTimeline (user) {
       timeline.push(followedTimeline[j])
     }
   }
-  //todo sort by timestamp
-  //console.log(timeline)
+  
+  timeline.sort((function (a, b) { 
+    return new Date(b.timestamp) - new Date(a.timestamp)
+  }));
   return timeline
 }
 
@@ -69,6 +71,13 @@ export function getPublicTimeline () {
     .then((data) => {
       return data.resources
     })
+}
+
+// Sorts an array of objects by their timestamp attribute
+export function sortByTime(array){
+  array.sort((function (a, b) { 
+    return new Date(a.timestamp) - new Date(b.timestamp)
+  }));
 }
 
 // Returns the number of likes a post has
