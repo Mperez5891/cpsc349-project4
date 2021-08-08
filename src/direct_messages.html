@@ -67,7 +67,7 @@
                          text-white text-sm px-4 py-2 border rounded-full">
                             New Conversation
                         </button>
-                        <div id="dropdown-area" class="hidden flex flex-col space-y-2 lg:flex-row lg:space-x-2 lg:space-y-0 justify-center">
+                        <div id="dropdown-area" class="hidden flex flex-col m-2 space-y-2 lg:space-x-2 justify-center">
                             <select id="new-conversation-dropdown" class="text-center bg-yellow-50 border rounded-xl outline-none" name="New conversation dropdown">
                                 <!--
                                 <option value="">Select a user</option>
@@ -79,10 +79,12 @@
                             text-white text-sm px-4 py-2 border rounded-full">Start</button>
                         </div>
                     </div>
+                    <div id="user-dm-list">
+                    </div>
                 </div>
     
                 <!-- Messages -->
-                <div class="flex flex-col w-full">
+                <div class="flex flex-col w-full justify-between">
                     <div id="messages" class="w-full px-5 flex flex-col justify-between">
                     </div>
                     <div id="new-message-area" class="hidden m-5">

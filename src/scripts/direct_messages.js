@@ -3,6 +3,7 @@
 import * as helper from './helper.js'
 
 let dm_list = []
+let temp_key_list = []
 let currentConvoUser = null
 let latestMessageId = null
 //const username = window.sessionStorage.getItem('username')
@@ -60,18 +61,18 @@ await Promise.all([getdirectMessagesSent(url_sent), getdirectMessagesReceived(ur
 helper.sortByTime(dm_list)
 
 // Grab all the keys
-let temp_key_list = []
-for(let i = 0; i < dm_list.length; i++) {
-  let key = dm_list[i].convo_key
-  if(!(temp_key_list.includes(key)))
+function getKeys() {
+  for(let i = 0; i < dm_list.length; i++) {
+    let key = dm_list[i].convo_key
+    if(!(temp_key_list.includes(key)))
     temp_key_list.push(key)
+  }
 }
 
 // To do: Post direct message 
 // Registration
 export async function createDM (new_from_user_id, new_to_user_id, new_in_reply_to_id, new_text) {
   let url = 'http://localhost:5000/direct_messages'
-  console.log(new_from_user_id, new_to_user_id, new_in_reply_to_id, new_text)
 
   return fetch(url, {
     method: 'POST',
@@ -108,21 +109,27 @@ document.getElementById('send-message-button').addEventListener('click', async (
   helper.sortByTime(dm_list)
   displayMessages(currentConvoUser)
   document.getElementById('new-message-text').value = ''
+  temp_key_list = []
+  await getKeys()
+  await displayConvoList()
+  selectUser()
 })
 
 // Display convo list
-if(temp_key_list !== null) {
-  for(let i = 0; i < temp_key_list.length; i++) {
-    const result = await helper.getUser(temp_key_list[i])
-    const dmPost = document.createElement('div')
-    dmPost.className = "flex flex-row justify-center items-center border-b-2"
-
-    // dmPost.innerHTML += "<div class='w-full'>"
-    dmPost.innerHTML += "<button id='" + result.id + "' class='conversation-tab w-full py-4 px-2 text-lg font-semibold text-black"
-    + " hover:bg-gray-200 transition duration-300'>" + result.username + "</button>"
-    // dmPost.innerHTML += "</div>"
+async function displayConvoList() {
+  console.log(temp_key_list)
+  document.getElementById('user-dm-list').innerHTML = ''
+  if(temp_key_list !== null) {
+    for(let i = 0; i < temp_key_list.length; i++) {
+      const result = await helper.getUser(temp_key_list[i])
+      const dmPost = document.createElement('div')
+      dmPost.className = "flex flex-row justify-center items-center border-b-2"
       
-      document.getElementById('conv-list-container').append(dmPost)
+      dmPost.innerHTML += "<button id='" + result.id + "' class='conversation-tab w-full py-4 px-2 text-lg font-semibold text-black"
+      + " hover:bg-gray-200 transition duration-300'>" + result.username + "</button>"
+      
+      document.getElementById('user-dm-list').append(dmPost)
+    }
   }
 }
 
@@ -132,10 +139,15 @@ export async function displayMessages(convo_key) {
   if (dm_list !== null) {
     const dmPost = document.createElement('div')
     dmPost.className = "array flex flex-col my-5"
+    console.log(currentConvoUser)
+    let convoUser = await helper.getUser(currentConvoUser)
+    convoUser = convoUser.username
+    console.log(username)
+    dmPost.innerHTML += "<h2 class='text-black'>" + convoUser + "</h2>"
     for(let i = 0; i < dm_list.length; i++) {
       const result = await dm_list[i]
-      // dmPost.innerHTML += "<div class='flex justify-end mb-4'>"
       
+
       if (dm_list[i].from_user_id === current_user_id && dm_list[i].convo_key === convo_key) {
         latestMessageId = result.id
         dmPost.innerHTML += "<div class='my-2 mr-2 py-3 px-4 bg-blue-400 rounded-bl-3xl rounded-tl-3xl rounded-tr-xl text-white break-words'>" + result.text + "</div>"
@@ -144,8 +156,6 @@ export async function displayMessages(convo_key) {
         latestMessageId = result.id
         dmPost.innerHTML += "<div class='my-2 ml-2 py-3 px-4 bg-gray-400 rounded-br-3xl rounded-tr-3xl rounded-tl-xl text-white break-words'>" + result.text  + "</div>"
       }
-      
-      // dmPost.innerHTML += "</div>"
 
       document.getElementById('messages').append(dmPost)
     }
@@ -163,7 +173,6 @@ async function selectUser() {
   }
 }
 
-selectUser()
 
 let newConversationButton = document.getElementById('new-conversation-button')
 let dropdownArea = document.getElementById('dropdown-area')
@@ -183,6 +192,8 @@ startNewConversationButton.addEventListener('click', async () => {
   let convoUser = await helper.getUser(dropdown.value)
   currentConvoUser = convoUser.id
   displayMessages(convoUser.id)
+  dropdownArea.classList.toggle('hidden')
+  newConversationButton.innerHTML = 'New Conversation'
 })
 
 async function generateConversationDropdown(){
@@ -191,8 +202,11 @@ async function generateConversationDropdown(){
   
   for (let i = 0; i < followArr.length; i++) {
     let followedUser = await helper.getUser(followArr[i].following_id)
-    console.log(followedUser)
     dropdown.innerHTML+='<option value="'+followedUser.username+'">'+ followedUser.username+'</option>'
   } 
 }
+
+await getKeys()
+await displayConvoList()
+selectUser()
 generateConversationDropdown()
