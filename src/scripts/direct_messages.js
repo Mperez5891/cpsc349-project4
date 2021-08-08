@@ -107,6 +107,7 @@ document.getElementById('send-message-button').addEventListener('click', async (
   await Promise.all([getdirectMessagesSent(url_sent), getdirectMessagesReceived(url_from)])
   helper.sortByTime(dm_list)
   displayMessages(currentConvoUser)
+  document.getElementById('new-message-text').value = ''
 })
 
 // Display convo list
