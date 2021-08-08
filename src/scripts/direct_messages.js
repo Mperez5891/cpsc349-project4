@@ -52,14 +52,12 @@ export async function getdirectMessagesReceived(url) {
 }
 
 // Run Functions finish the dm list promises
-let url_sent = 'http://localhost:5000/direct_messages/?from_user_id=' + current_user_id
-let url_from = 'http://localhost:5000/direct_messages/?to_user_id=' + current_user_id
+let url_sent = 'http://localhost:5000/direct_messages/?sort=timestamp&from_user_id=' + current_user_id
+let url_from = 'http://localhost:5000/direct_messages/?sort=timestamp&to_user_id=' + current_user_id
 await Promise.all([getdirectMessagesSent(url_sent), getdirectMessagesReceived(url_from)])
 
-// Add a function to sort by timestamp
-dm_list.sort((function (a, b) { 
-  return new Date(a.timestamp) - new Date(b.timestamp)
-}));
+// Sort DM array by timestamp
+helper.sortByTime(dm_list)
 
 // Grab all the keys
 let temp_key_list = []
@@ -73,7 +71,8 @@ for(let i = 0; i < dm_list.length; i++) {
 // Registration
 export async function createDM (new_from_user_id, new_to_user_id, new_in_reply_to_id, new_text) {
   let url = 'http://localhost:5000/direct_messages'
-  
+  console.log(new_from_user_id, new_to_user_id, new_in_reply_to_id, new_text)
+
   return fetch(url, {
     method: 'POST',
     body: JSON.stringify({
@@ -99,14 +98,16 @@ async function directMessage () {
   const new_to_user_id = currentConvoUser
   const new_in_reply_to_id = latestMessageId
   const new_text = document.getElementById('new-message-text').value
-  const userInfo = await createDM(new_from_user_id, new_to_user_id, new_in_reply_to_id, new_text) // todo
+  await createDM(new_from_user_id, new_to_user_id, new_in_reply_to_id, new_text)
 }
 
 document.getElementById('send-message-button').addEventListener('click', async () => {
   await directMessage()
   dm_list = []
   await Promise.all([getdirectMessagesSent(url_sent), getdirectMessagesReceived(url_from)])
+  helper.sortByTime(dm_list)
   displayMessages(currentConvoUser)
+  document.getElementById('new-message-text').value = ''
 })
 
 // Display convo list
@@ -132,7 +133,6 @@ export async function displayMessages(convo_key) {
     const dmPost = document.createElement('div')
     dmPost.className = "array flex flex-col my-5"
     for(let i = 0; i < dm_list.length; i++) {
-      console.log(dm_list)
       const result = await dm_list[i]
       // dmPost.innerHTML += "<div class='flex justify-end mb-4'>"
       
@@ -178,6 +178,21 @@ newConversationButton.addEventListener('click', () => {
 
 let dropdown = document.getElementById('new-conversation-dropdown')
 let startNewConversationButton = document.getElementById('start-new-conversation-button')
-startNewConversationButton.addEventListener('click', () => {
-  console.log(dropdown.value)
+startNewConversationButton.addEventListener('click', async () => {
+  document.getElementById('new-message-area').classList.remove('hidden')
+  let convoUser = await helper.getUser(dropdown.value)
+  currentConvoUser = convoUser.id
+  displayMessages(convoUser.id)
 })
+
+async function generateConversationDropdown(){
+  let followArr = await helper.getFollowing(loggedInUser)
+  const dropdownMenu = document.getElementById('new-conversation-dropdown')
+  
+  for (let i = 0; i < followArr.length; i++) {
+    let followedUser = await helper.getUser(followArr[i].following_id)
+    console.log(followedUser)
+    dropdown.innerHTML+='<option value="'+followedUser.username+'">'+ followedUser.username+'</option>'
+  } 
+}
+generateConversationDropdown()
