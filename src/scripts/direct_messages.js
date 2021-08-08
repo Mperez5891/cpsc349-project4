@@ -73,7 +73,8 @@ for(let i = 0; i < dm_list.length; i++) {
 // Registration
 export async function createDM (new_from_user_id, new_to_user_id, new_in_reply_to_id, new_text) {
   let url = 'http://localhost:5000/direct_messages'
-  
+  console.log(new_from_user_id, new_to_user_id, new_in_reply_to_id, new_text)
+
   return fetch(url, {
     method: 'POST',
     body: JSON.stringify({
@@ -99,7 +100,7 @@ async function directMessage () {
   const new_to_user_id = currentConvoUser
   const new_in_reply_to_id = latestMessageId
   const new_text = document.getElementById('new-message-text').value
-  const userInfo = await createDM(new_from_user_id, new_to_user_id, new_in_reply_to_id, new_text) // todo
+  await createDM(new_from_user_id, new_to_user_id, new_in_reply_to_id, new_text)
 }
 
 document.getElementById('send-message-button').addEventListener('click', async () => {
@@ -132,7 +133,6 @@ export async function displayMessages(convo_key) {
     const dmPost = document.createElement('div')
     dmPost.className = "array flex flex-col my-5"
     for(let i = 0; i < dm_list.length; i++) {
-      console.log(dm_list)
       const result = await dm_list[i]
       // dmPost.innerHTML += "<div class='flex justify-end mb-4'>"
       
@@ -178,6 +178,10 @@ newConversationButton.addEventListener('click', () => {
 
 let dropdown = document.getElementById('new-conversation-dropdown')
 let startNewConversationButton = document.getElementById('start-new-conversation-button')
-startNewConversationButton.addEventListener('click', () => {
-  console.log(dropdown.value)
+startNewConversationButton.addEventListener('click', async () => {
+  document.getElementById('new-message-area').classList.remove('hidden')
+  let convoUser = await helper.getUser(dropdown.value)
+  currentConvoUser = convoUser.id
+  
+  displayMessages(convoUser.id)
 })
