@@ -182,6 +182,17 @@ startNewConversationButton.addEventListener('click', async () => {
   document.getElementById('new-message-area').classList.remove('hidden')
   let convoUser = await helper.getUser(dropdown.value)
   currentConvoUser = convoUser.id
-  
   displayMessages(convoUser.id)
 })
+
+async function generateConversationDropdown(){
+  let followArr = await helper.getFollowing(loggedInUser)
+  const dropdownMenu = document.getElementById('new-conversation-dropdown')
+  
+  for (let i = 0; i < followArr.length; i++) {
+    let followedUser = await helper.getUser(followArr[i].following_id)
+    console.log(followedUser)
+    dropdown.innerHTML+='<option value="'+followedUser.username+'">'+ followedUser.username+'</option>'
+  } 
+}
+generateConversationDropdown()
